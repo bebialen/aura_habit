@@ -1,0 +1,123 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and goals",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "calorieGoal": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "A daily habit to track",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "done": { "type": "boolean" },
+        "userId": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["id", "name", "userId"]
+    },
+    "HabitLog": {
+      "title": "HabitLog",
+      "description": "Daily completion record for habits",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "completedIds": { "type": "array", "items": { "type": "string" } },
+        "userId": { "type": "string" }
+      },
+      "required": ["date", "completedIds", "userId"]
+    },
+    "Workout": {
+      "title": "Workout",
+      "description": "A strength training session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "date": { "type": "string" },
+        "volume": { "type": "number" },
+        "duration": { "type": "number" },
+        "userId": { "type": "string" },
+        "exercises": { "type": "array", "items": { "$ref": "Exercise" } }
+      },
+      "required": ["id", "name", "userId"]
+    },
+    "Exercise": {
+      "title": "Exercise",
+      "description": "An exercise within a workout",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "sets": { "type": "number" },
+        "reps": { "type": "number" },
+        "weight": { "type": "number" }
+      }
+    },
+    "FoodLog": {
+      "title": "FoodLog",
+      "description": "A meal or food item logged",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "calories": { "type": "number" },
+        "time": { "type": "string" },
+        "protein": { "type": "number" },
+        "carbs": { "type": "number" },
+        "fats": { "type": "number" },
+        "userId": { "type": "string" },
+        "date": { "type": "string", "format": "date" }
+      },
+      "required": ["id", "name", "calories", "userId", "date"]
+    },
+    "WorkoutPlan": {
+      "title": "WorkoutPlan",
+      "description": "A template for a workout session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "userId": { "type": "string" },
+        "exercises": { "type": "array", "items": { "$ref": "Exercise" } }
+      },
+      "required": ["id", "name", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/users/{userId}/habits/{habitId}": {
+      "schema": "Habit",
+      "description": "User's habit definitions"
+    },
+    "/users/{userId}/habitLogs/{date}": {
+      "schema": "HabitLog",
+      "description": "Daily habit completion logs"
+    },
+    "/users/{userId}/workouts/{workoutId}": {
+      "schema": "Workout",
+      "description": "User's workout sessions"
+    },
+    "/users/{userId}/foodLogs/{foodLogId}": {
+      "schema": "FoodLog",
+      "description": "User's daily food logs"
+    },
+    "/users/{userId}/workoutPlans/{planId}": {
+      "schema": "WorkoutPlan",
+      "description": "User's predefined workout plans"
+    }
+  }
+}
