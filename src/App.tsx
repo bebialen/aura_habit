@@ -144,25 +144,39 @@ const App: React.FC = () => {
 
   const logout = () => signOut(auth);
 
+  const today = new Date().toISOString().split('T')[0];
+
+  const todayHabits = useMemo(() => {
+    const todayLog = habitLogs.find(l => l.date === today);
+    return habits.map(h => ({
+      ...h,
+      done: todayLog ? todayLog.completedIds.includes(h.id) : false
+    }));
+  }, [habits, habitLogs, today]);
+
+  const todayFoodLogs = useMemo(() => 
+    foodLogs.filter(log => log.date === today),
+  [foodLogs, today]);
+
   const caloriesConsumed = useMemo(() => 
-    foodLogs.reduce((acc, log) => acc + log.calories, 0), 
-  [foodLogs]);
+    todayFoodLogs.reduce((acc, log) => acc + log.calories, 0), 
+  [todayFoodLogs]);
 
   const toggleHabit = async (id: string) => {
     if (!user) return;
-    const habit = habits.find(h => h.id === id);
+    const habit = todayHabits.find(h => h.id === id);
     if (!habit) return;
 
     const newDone = !habit.done;
-    const today = new Date().toISOString().split('T')[0];
-    const logRef = doc(db, 'users', user.uid, 'habitLogs', today);
+    const currentToday = new Date().toISOString().split('T')[0];
+    const logRef = doc(db, 'users', user.uid, 'habitLogs', currentToday);
     const habitRef = doc(db, 'users', user.uid, 'habits', id);
 
     try {
       const batch = writeBatch(db);
       batch.update(habitRef, { done: newDone });
 
-      const currentLog = habitLogs.find(l => l.date === today) || { date: today, completedIds: [], userId: user.uid };
+      const currentLog = habitLogs.find(l => l.date === currentToday) || { date: currentToday, completedIds: [], userId: user.uid };
       let newCompletedIds;
       if (newDone) {
         newCompletedIds = [...new Set([...currentLog.completedIds, id])];
@@ -170,7 +184,7 @@ const App: React.FC = () => {
         newCompletedIds = currentLog.completedIds.filter(cid => cid !== id);
       }
       
-      batch.set(logRef, { date: today, completedIds: newCompletedIds, userId: user.uid }, { merge: true });
+      batch.set(logRef, { date: currentToday, completedIds: newCompletedIds, userId: user.uid }, { merge: true });
       await batch.commit();
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}/habits/${id}`);
@@ -323,7 +337,7 @@ const App: React.FC = () => {
             >
               {activeTab === 'dashboard' && (
                 <DashboardView 
-                  habits={habits} 
+                  habits={todayHabits} 
                   habitLogs={habitLogs}
                   toggleHabit={toggleHabit} 
                   caloriesConsumed={caloriesConsumed} 
@@ -345,7 +359,7 @@ const App: React.FC = () => {
               )}
               {activeTab === 'nutrition' && (
                 <NutritionView 
-                  logs={foodLogs} 
+                  logs={todayFoodLogs} 
                   goal={calorieGoal} 
                   consumed={caloriesConsumed}
                   onAddFood={() => setIsFoodModalOpen(true)}
@@ -353,7 +367,7 @@ const App: React.FC = () => {
               )}
               {activeTab === 'habits' && (
                 <HabitsView 
-                  habits={habits}
+                  habits={todayHabits}
                   addHabit={addHabit}
                   removeHabit={removeHabit}
                   toggleHabit={toggleHabit}
