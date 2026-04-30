@@ -32,6 +32,7 @@ export interface Exercise {
   sets: number;
   reps: number;
   weight: number;
+  notes?: string;
 }
 
 export interface FoodLog {

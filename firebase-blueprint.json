@@ -61,7 +61,8 @@
         "name": { "type": "string" },
         "sets": { "type": "number" },
         "reps": { "type": "number" },
-        "weight": { "type": "number" }
+        "weight": { "type": "number" },
+        "notes": { "type": "string" }
       }
     },
     "FoodLog": {

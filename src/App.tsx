@@ -555,7 +555,7 @@ const WorkoutLoggingForm: React.FC<{
   const [name, setName] = useState(initialPlan?.name || '');
   const [duration, setDuration] = useState('');
   const [exercises, setExercises] = useState<Exercise[]>(initialPlan?.exercises || []);
-  const [newExercise, setNewExercise] = useState({ name: '', sets: '', reps: '', weight: '' });
+  const [newExercise, setNewExercise] = useState({ name: '', sets: '', reps: '', weight: '', notes: '' });
 
   const addExercise = () => {
     if (!newExercise.name || !newExercise.sets || !newExercise.reps) return;
@@ -564,9 +564,10 @@ const WorkoutLoggingForm: React.FC<{
       name: newExercise.name,
       sets: Number(newExercise.sets),
       reps: Number(newExercise.reps),
-      weight: Number(newExercise.weight || 0)
+      weight: Number(newExercise.weight || 0),
+      notes: newExercise.notes
     }]);
-    setNewExercise({ name: '', sets: '', reps: '', weight: '' });
+    setNewExercise({ name: '', sets: '', reps: '', weight: '', notes: '' });
   };
 
   const calculateVolume = () => {
@@ -599,12 +600,19 @@ const WorkoutLoggingForm: React.FC<{
         
         <div className="space-y-2">
           {exercises.map((ex) => (
-            <div key={ex.id} className="glass p-3 flex justify-between items-center">
-              <div>
-                <div className="font-bold text-sm">{ex.name}</div>
-                <div className="text-white/30 text-[10px]">{ex.sets} sets × {ex.reps} reps @ {ex.weight}kg</div>
+            <div key={ex.id} className="glass p-3 flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <div>
+                  <div className="font-bold text-sm">{ex.name}</div>
+                  <div className="text-white/30 text-[10px]">{ex.sets} sets × {ex.reps} reps @ {ex.weight}kg</div>
+                </div>
+                <div className="text-cobalt font-bold text-xs">{ex.sets * ex.reps * ex.weight}kg</div>
               </div>
-              <div className="text-cobalt font-bold text-xs">{ex.sets * ex.reps * ex.weight}kg</div>
+              {ex.notes && (
+                <div className="text-[10px] text-white/40 italic border-t border-white/5 pt-2">
+                  {ex.notes}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -639,6 +647,12 @@ const WorkoutLoggingForm: React.FC<{
               onChange={e => setNewExercise({...newExercise, weight: e.target.value})}
             />
           </div>
+          <textarea
+            placeholder="Add a note (Markdown supported)..."
+            className="w-full h-20 bg-white/5 border border-white/10 rounded-lg p-3 text-sm focus:outline-none focus:border-cobalt resize-none"
+            value={newExercise.notes}
+            onChange={e => setNewExercise({...newExercise, notes: e.target.value})}
+          />
           <button 
             onClick={addExercise}
             className="w-full h-10 rounded-lg border border-cobalt/30 text-cobalt font-medium uppercase tracking-widest text-[10px] hover:bg-cobalt/5 transition-colors"
@@ -667,7 +681,7 @@ const WorkoutLoggingForm: React.FC<{
 const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId'>) => void }> = ({ onAdd }) => {
   const [name, setName] = useState('');
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [newExercise, setNewExercise] = useState({ name: '', sets: '', reps: '', weight: '' });
+  const [newExercise, setNewExercise] = useState({ name: '', sets: '', reps: '', notes: '' });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Exercise | null>(null);
 
@@ -678,9 +692,10 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
       name: newExercise.name,
       sets: Number(newExercise.sets),
       reps: Number(newExercise.reps),
-      weight: Number(newExercise.weight || 0)
+      weight: 0,
+      notes: newExercise.notes
     }]);
-    setNewExercise({ name: '', sets: '', reps: '', weight: '' });
+    setNewExercise({ name: '', sets: '', reps: '', notes: '' });
   };
 
   const startEditing = (ex: Exercise) => {
@@ -721,26 +736,28 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
                     value={editForm.name}
                     onChange={e => setEditForm({ ...editForm, name: e.target.value })}
                   />
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <input 
                       type="number"
+                      placeholder="Sets"
                       className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
                       value={editForm.sets}
                       onChange={e => setEditForm({ ...editForm, sets: Number(e.target.value) })}
                     />
                     <input 
                       type="number"
+                      placeholder="Reps"
                       className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
                       value={editForm.reps}
                       onChange={e => setEditForm({ ...editForm, reps: Number(e.target.value) })}
                     />
-                    <input 
-                      type="number"
-                      className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
-                      value={editForm.weight}
-                      onChange={e => setEditForm({ ...editForm, weight: Number(e.target.value) })}
-                    />
                   </div>
+                  <textarea
+                    placeholder="Notes (Markdown supported)"
+                    className="w-full h-20 bg-white/5 border border-white/10 rounded-lg p-3 text-sm focus:outline-none focus:border-cobalt resize-none"
+                    value={editForm.notes}
+                    onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
+                  />
                   <div className="flex gap-2">
                     <button 
                       onClick={saveEdit}
@@ -757,28 +774,35 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
                   </div>
                 </div>
               ) : (
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <GripVertical size={16} className="text-white/10" />
-                    <div>
-                      <div className="font-bold text-sm">{ex.name}</div>
-                      <div className="text-white/30 text-[10px]">{ex.sets} sets × {ex.reps} reps @ {ex.weight}kg</div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <GripVertical size={16} className="text-white/10" />
+                      <div>
+                        <div className="font-bold text-sm">{ex.name}</div>
+                        <div className="text-white/30 text-[10px]">{ex.sets} sets × {ex.reps} reps</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => startEditing(ex)}
+                        className="p-2 text-white/20 hover:text-cobalt transition-colors"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button 
+                        onClick={() => setExercises(exercises.filter(e => e.id !== ex.id))}
+                        className="p-2 text-white/10 hover:text-red-500 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => startEditing(ex)}
-                      className="p-2 text-white/20 hover:text-cobalt transition-colors"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button 
-                      onClick={() => setExercises(exercises.filter(e => e.id !== ex.id))}
-                      className="p-2 text-white/10 hover:text-red-500 transition-colors"
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
+                  {ex.notes && (
+                    <div className="ml-7 text-[10px] text-white/40 italic line-clamp-2">
+                      {ex.notes}
+                    </div>
+                  )}
                 </div>
               )}
             </Reorder.Item>
@@ -792,7 +816,7 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
             value={newExercise.name}
             onChange={e => setNewExercise({...newExercise, name: e.target.value})}
           />
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <input 
               placeholder="Sets" 
               type="number"
@@ -807,14 +831,13 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
               value={newExercise.reps}
               onChange={e => setNewExercise({...newExercise, reps: e.target.value})}
             />
-            <input 
-              placeholder="Weight" 
-              type="number"
-              className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
-              value={newExercise.weight}
-              onChange={e => setNewExercise({...newExercise, weight: e.target.value})}
-            />
           </div>
+          <textarea
+            placeholder="Add a note (Markdown supported)..."
+            className="w-full h-20 bg-white/5 border border-white/10 rounded-lg p-3 text-sm focus:outline-none focus:border-cobalt resize-none"
+            value={newExercise.notes}
+            onChange={e => setNewExercise({...newExercise, notes: e.target.value})}
+          />
           <button 
             onClick={addExercise}
             className="w-full h-10 rounded-lg border border-cobalt/30 text-cobalt font-medium uppercase tracking-widest text-[10px] hover:bg-cobalt/5 transition-colors"

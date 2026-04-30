@@ -18,7 +18,7 @@ Workout volume is calculated per exercise and aggregated for the session:
 `Total Workout Volume = sum(Exercise Volumes)`
 
 ### 2. Workout Templates
-Workout Plans serve as templates. When starting a workout from a plan, the exercises are mapped into a new `Workout` instance, allowing the user to adjust actual weight/reps performed while retaining the structure of the plan.
+Workout Plans serve as templates. When starting a workout from a plan, the exercises are mapped into a new `Workout` instance, allowing the user to input actual weight performed and view/edit notes while retaining the structure of the plan.
 
 ## Habit Tracking Logic
 ### 1. Completion Status

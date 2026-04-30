@@ -14,8 +14,8 @@ This document describes the interactive elements, gestures, and feedback mechani
 |---|---|---|
 | **Quick Log** | Two large cards: "Log Food" and "Log Workout". | None (Navigation only). |
 | **Log Food** | Search input, Quick Add buttons, Custom Entry (Name, Calories, Macros). | "Add Custom Food" button is disabled unless Name and Calories are provided. |
-| **Log Workout** | Workout Name, Duration, Exercise Name, Sets, Reps, Weight. | "Finish Workout" is disabled if Name is missing or 0 exercises are added. |
-| **Create Workout Plan** | Plan Name, Exercise Template inputs. | "Save Workout Plan" is disabled if Name is missing or 0 exercises are added. |
+| **Log Workout** | Workout Name, Duration, Exercise Name, Sets, Reps, Weight, Notes. | "Finish Workout" is disabled if Name is missing or 0 exercises are added. |
+| **Create Workout Plan** | Plan Name, Exercise Template inputs (Sets, Reps, Notes). | "Save Workout Plan" is disabled if Name is missing or 0 exercises are added. |
 
 ## 3. Gestures & Specialized Interactions
 - **Habit Toggling**: Clicking a habit row in the Dashboard or Habits view toggles its completion status.

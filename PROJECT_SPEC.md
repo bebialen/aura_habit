@@ -17,7 +17,7 @@
 
 ### 3. Workout Tracking (Train)
 - **Total Volume Tracker**: Cumulative weight moved across all sessions.
-- **Workout Plans**: Create reusable templates with specific exercises, sets, reps, and weights.
+- **Workout Plans**: Create reusable templates with specific exercises, sets, reps, and notes (Markdown supported).
 - **Session Logging**: 
   - Log empty sessions (ad-hoc).
   - Log workouts from pre-defined plans.
