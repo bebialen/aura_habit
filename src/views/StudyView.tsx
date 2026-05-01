@@ -102,10 +102,11 @@ export const StudyView: React.FC<StudyViewProps> = ({
                 <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={16} />
                 <input 
                   type="number"
+                  min="0"
                   placeholder="Minutes" 
                   className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 focus:outline-none focus:border-cobalt transition-colors"
                   value={newSession.duration}
-                  onChange={e => setNewSession({...newSession, duration: e.target.value})}
+                  onChange={e => setNewSession({...newSession, duration: Math.max(0, Number(e.target.value)).toString()})}
                 />
               </div>
               <div className="relative">

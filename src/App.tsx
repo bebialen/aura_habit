@@ -504,30 +504,34 @@ const FoodLoggingForm: React.FC<{ onAdd: (food: Omit<FoodLog, 'id' | 'time'>) =>
           <input 
             placeholder="Calories" 
             type="number"
+            min="0"
             className="h-12 bg-white/5 border border-white/10 rounded-xl px-4 focus:outline-none focus:border-cobalt"
             value={customEntry.calories}
-            onChange={e => setCustomEntry({...customEntry, calories: e.target.value})}
+            onChange={e => setCustomEntry({...customEntry, calories: Math.max(0, Number(e.target.value)).toString()})}
           />
           <input 
             placeholder="Protein (g)" 
             type="number"
+            min="0"
             className="h-12 bg-white/5 border border-white/10 rounded-xl px-4 focus:outline-none focus:border-cobalt"
             value={customEntry.protein}
-            onChange={e => setCustomEntry({...customEntry, protein: e.target.value})}
+            onChange={e => setCustomEntry({...customEntry, protein: Math.max(0, Number(e.target.value)).toString()})}
           />
           <input 
             placeholder="Carbs (g)" 
             type="number"
+            min="0"
             className="h-12 bg-white/5 border border-white/10 rounded-xl px-4 focus:outline-none focus:border-cobalt"
             value={customEntry.carbs}
-            onChange={e => setCustomEntry({...customEntry, carbs: e.target.value})}
+            onChange={e => setCustomEntry({...customEntry, carbs: Math.max(0, Number(e.target.value)).toString()})}
           />
           <input 
             placeholder="Fats (g)" 
             type="number"
+            min="0"
             className="h-12 bg-white/5 border border-white/10 rounded-xl px-4 focus:outline-none focus:border-cobalt"
             value={customEntry.fats}
-            onChange={e => setCustomEntry({...customEntry, fats: e.target.value})}
+            onChange={e => setCustomEntry({...customEntry, fats: Math.max(0, Number(e.target.value)).toString()})}
           />
         </div>
         <button 
@@ -611,31 +615,138 @@ const WorkoutLoggingForm: React.FC<{
           <input 
             placeholder="Duration (mins)" 
             type="number"
+            min="0"
             className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 focus:outline-none focus:border-cobalt"
             value={duration}
-            onChange={e => setDuration(e.target.value)}
+            onChange={e => setDuration(Math.max(0, Number(e.target.value)).toString())}
           />
         </div>
       </div>
 
       <div className="space-y-4">
-        <h4 className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Exercises</h4>
+        <div className="flex justify-between items-center px-1">
+          <h4 className="text-white/40 text-[10px] font-bold uppercase tracking-widest">Exercises</h4>
+          <div className="flex gap-4">
+            <button 
+              onClick={() => {
+                const newExs = exercises.map(ex => ({ ...ex, weight: ex.weight || 0 }));
+                setExercises(newExs);
+              }}
+              className="text-[8px] text-cobalt font-bold uppercase tracking-widest hover:underline"
+            >
+              Log all as planned
+            </button>
+            <span className="text-[10px] text-cobalt font-bold uppercase tracking-widest">{calculateVolume().toLocaleString()} kg total</span>
+          </div>
+        </div>
         
-        <div className="space-y-2">
-          {exercises.map((ex) => (
-            <div key={ex.id} className="glass p-3 flex flex-col gap-2">
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="font-bold text-sm">{ex.name}</div>
-                  <div className="text-white/30 text-[10px]">{ex.sets} sets × {ex.reps} reps @ {ex.weight}kg</div>
+        <div className="space-y-3">
+          {exercises.map((ex, idx) => (
+            <div key={ex.id} className={`glass p-4 flex flex-col gap-3 relative group transition-all ${ex.weight > 0 ? 'border-cobalt/30' : 'border-white/5'}`}>
+              <button 
+                onClick={() => setExercises(exercises.filter((_, i) => i !== idx))}
+                className="absolute top-4 right-4 text-white/10 hover:text-red-500 transition-colors"
+              >
+                <X size={14} />
+              </button>
+              
+              <div className="flex justify-between items-start pr-8">
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm">{ex.name}</span>
+                    {ex.weight > 0 && <CheckCircle2 size={14} className="text-cobalt" />}
+                  </div>
+                  {ex.notes && <span className="text-[10px] text-white/30 italic mt-0.5">{ex.notes}</span>}
                 </div>
-                <div className="text-cobalt font-bold text-xs">{ex.sets * ex.reps * ex.weight}kg</div>
+                {ex.weight === 0 && (
+                  <button 
+                    onClick={() => {
+                      const newExs = [...exercises];
+                      // If it's 0, we can't really "log as planned" if planned was also 0, 
+                      // but usually plans have targets. For now, let's just mark it active.
+                      newExs[idx] = { ...ex, weight: ex.weight || 10 }; // Defaulting to 10 if 0 for demo/feel
+                      setExercises(newExs);
+                    }}
+                    className="px-3 py-1 rounded-lg bg-cobalt/10 text-cobalt text-[8px] font-bold uppercase tracking-widest hover:bg-cobalt/20 transition-colors"
+                  >
+                    Quick Log
+                  </button>
+                )}
               </div>
-              {ex.notes && (
-                <div className="text-[10px] text-white/40 italic border-t border-white/5 pt-2">
-                  {ex.notes}
+
+              <div className="grid grid-cols-4 gap-2">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest ml-1">Sets</span>
+                  <input 
+                    type="number"
+                    min="0"
+                    className="h-10 bg-white/5 border border-white/10 rounded-lg px-2 text-center text-xs focus:outline-none focus:border-cobalt transition-colors"
+                    value={ex.sets}
+                    onChange={(e) => {
+                      const newExs = [...exercises];
+                      newExs[idx] = { ...ex, sets: Math.max(0, Number(e.target.value)) };
+                      setExercises(newExs);
+                    }}
+                  />
                 </div>
-              )}
+                <div className="flex flex-col gap-1">
+                  <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest ml-1">Reps</span>
+                  <div className="flex items-center bg-white/5 border border-white/10 rounded-lg overflow-hidden h-10">
+                    <button 
+                      onClick={() => {
+                        const newExs = [...exercises];
+                        newExs[idx] = { ...ex, reps: Math.max(0, ex.reps - 1) };
+                        setExercises(newExs);
+                      }}
+                      className="flex-1 h-full hover:bg-white/10 transition-colors flex items-center justify-center text-white/40"
+                    >-</button>
+                    <span className="w-6 text-center text-[10px] font-bold">{ex.reps}</span>
+                    <button 
+                      onClick={() => {
+                        const newExs = [...exercises];
+                        newExs[idx] = { ...ex, reps: ex.reps + 1 };
+                        setExercises(newExs);
+                      }}
+                      className="flex-1 h-full hover:bg-white/10 transition-colors flex items-center justify-center text-white/40"
+                    >+</button>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1 col-span-2">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest">Weight (kg)</span>
+                    <span className="text-[8px] text-cobalt font-bold">{(ex.sets * ex.reps * ex.weight).toLocaleString()} kg</span>
+                  </div>
+                  <div className="flex items-center bg-white/5 border border-white/10 rounded-lg overflow-hidden h-10">
+                    <button 
+                      onClick={() => {
+                        const newExs = [...exercises];
+                        newExs[idx] = { ...ex, weight: Math.max(0, ex.weight - 2.5) };
+                        setExercises(newExs);
+                      }}
+                      className="w-10 h-full hover:bg-white/10 transition-colors flex items-center justify-center text-white/40 border-r border-white/5"
+                    >-2.5</button>
+                    <input 
+                      type="number"
+                      min="0"
+                      className="flex-1 bg-transparent text-center text-xs focus:outline-none"
+                      value={ex.weight}
+                      onChange={(e) => {
+                        const newExs = [...exercises];
+                        newExs[idx] = { ...ex, weight: Math.max(0, Number(e.target.value)) };
+                        setExercises(newExs);
+                      }}
+                    />
+                    <button 
+                      onClick={() => {
+                        const newExs = [...exercises];
+                        newExs[idx] = { ...ex, weight: ex.weight + 2.5 };
+                        setExercises(newExs);
+                      }}
+                      className="w-10 h-full hover:bg-white/10 transition-colors flex items-center justify-center text-white/40 border-l border-white/5"
+                    >+2.5</button>
+                  </div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -651,23 +762,26 @@ const WorkoutLoggingForm: React.FC<{
             <input 
               placeholder="Sets" 
               type="number"
+              min="0"
               className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
               value={newExercise.sets}
-              onChange={e => setNewExercise({...newExercise, sets: e.target.value})}
+              onChange={e => setNewExercise({...newExercise, sets: Math.max(0, Number(e.target.value)).toString()})}
             />
             <input 
               placeholder="Reps" 
               type="number"
+              min="0"
               className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
               value={newExercise.reps}
-              onChange={e => setNewExercise({...newExercise, reps: e.target.value})}
+              onChange={e => setNewExercise({...newExercise, reps: Math.max(0, Number(e.target.value)).toString()})}
             />
             <input 
               placeholder="Weight" 
               type="number"
+              min="0"
               className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
               value={newExercise.weight}
-              onChange={e => setNewExercise({...newExercise, weight: e.target.value})}
+              onChange={e => setNewExercise({...newExercise, weight: Math.max(0, Number(e.target.value)).toString()})}
             />
           </div>
           <textarea
@@ -762,17 +876,19 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
                   <div className="grid grid-cols-2 gap-2">
                     <input 
                       type="number"
+                      min="0"
                       placeholder="Sets"
                       className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
                       value={editForm.sets}
-                      onChange={e => setEditForm({ ...editForm, sets: Number(e.target.value) })}
+                      onChange={e => setEditForm({ ...editForm, sets: Math.max(0, Number(e.target.value)) })}
                     />
                     <input 
                       type="number"
+                      min="0"
                       placeholder="Reps"
                       className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
                       value={editForm.reps}
-                      onChange={e => setEditForm({ ...editForm, reps: Number(e.target.value) })}
+                      onChange={e => setEditForm({ ...editForm, reps: Math.max(0, Number(e.target.value)) })}
                     />
                   </div>
                   <textarea
@@ -843,16 +959,18 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
             <input 
               placeholder="Sets" 
               type="number"
+              min="0"
               className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
               value={newExercise.sets}
-              onChange={e => setNewExercise({...newExercise, sets: e.target.value})}
+              onChange={e => setNewExercise({...newExercise, sets: Math.max(0, Number(e.target.value)).toString()})}
             />
             <input 
               placeholder="Reps" 
               type="number"
+              min="0"
               className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
               value={newExercise.reps}
-              onChange={e => setNewExercise({...newExercise, reps: e.target.value})}
+              onChange={e => setNewExercise({...newExercise, reps: Math.max(0, Number(e.target.value)).toString()})}
             />
           </div>
           <textarea
