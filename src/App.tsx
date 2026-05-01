@@ -434,7 +434,7 @@ const App: React.FC = () => {
         </Modal>
 
         <Modal isOpen={isWorkoutModalOpen} onClose={() => { setIsWorkoutModalOpen(false); setSelectedPlan(undefined); }} title={selectedPlan ? `Workout: ${selectedPlan.name}` : "Log Workout"}>
-          <WorkoutLoggingForm onAdd={addWorkout} initialPlan={selectedPlan} />
+          <WorkoutLoggingForm onAdd={addWorkout} workoutPlans={workoutPlans} initialPlan={selectedPlan} />
         </Modal>
 
         <Modal isOpen={isPlanModalOpen} onClose={() => setIsPlanModalOpen(false)} title="Create Workout Plan">
@@ -550,8 +550,9 @@ const FoodLoggingForm: React.FC<{ onAdd: (food: Omit<FoodLog, 'id' | 'time'>) =>
 
 const WorkoutLoggingForm: React.FC<{ 
   onAdd: (workout: Omit<Workout, 'id' | 'date' | 'userId'>) => void;
+  workoutPlans: WorkoutPlan[];
   initialPlan?: WorkoutPlan;
-}> = ({ onAdd, initialPlan }) => {
+}> = ({ onAdd, workoutPlans, initialPlan }) => {
   const [name, setName] = useState(initialPlan?.name || '');
   const [duration, setDuration] = useState('');
   const [exercises, setExercises] = useState<Exercise[]>(initialPlan?.exercises || []);
@@ -576,6 +577,28 @@ const WorkoutLoggingForm: React.FC<{
 
   return (
     <div className="space-y-6">
+      {workoutPlans.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="text-white/40 text-[10px] font-bold uppercase tracking-widest px-1">Apply a Plan</h4>
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+            {workoutPlans.map(plan => (
+              <button
+                key={plan.id}
+                onClick={() => {
+                  setName(plan.name);
+                  setExercises(plan.exercises);
+                }}
+                className={`flex-shrink-0 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border transition-all ${
+                  name === plan.name ? 'bg-cobalt border-cobalt text-white cobalt-glow' : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10 hover:border-white/20'
+                }`}
+              >
+                {plan.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="space-y-4">
         <input 
           placeholder="Workout Name (e.g. Upper Body)" 
