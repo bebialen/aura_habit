@@ -864,49 +864,55 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
             <Reorder.Item 
               key={ex.id} 
               value={ex}
-              className="glass p-3 flex flex-col gap-3 cursor-grab active:cursor-grabbing"
+              className="glass p-4 flex flex-col gap-3 cursor-grab active:cursor-grabbing hover:bg-white/5 transition-colors border border-white/5"
             >
               {editingId === ex.id && editForm ? (
                 <div className="space-y-3">
                   <input 
-                    className="w-full h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
+                    className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm focus:outline-none focus:border-cobalt transition-colors"
                     value={editForm.name}
                     onChange={e => setEditForm({ ...editForm, name: e.target.value })}
                   />
-                  <div className="grid grid-cols-2 gap-2">
-                    <input 
-                      type="number"
-                      min="0"
-                      placeholder="Sets"
-                      className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
-                      value={editForm.sets}
-                      onChange={e => setEditForm({ ...editForm, sets: Math.max(0, Number(e.target.value)) })}
-                    />
-                    <input 
-                      type="number"
-                      min="0"
-                      placeholder="Reps"
-                      className="h-10 bg-white/5 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:border-cobalt"
-                      value={editForm.reps}
-                      onChange={e => setEditForm({ ...editForm, reps: Math.max(0, Number(e.target.value)) })}
-                    />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest ml-1">Sets</span>
+                      <input 
+                        type="number"
+                        min="0"
+                        placeholder="Sets"
+                        className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm focus:outline-none focus:border-cobalt"
+                        value={editForm.sets}
+                        onChange={e => setEditForm({ ...editForm, sets: Math.max(0, Number(e.target.value)) })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[8px] text-white/20 uppercase font-bold tracking-widest ml-1">Reps</span>
+                      <input 
+                        type="number"
+                        min="0"
+                        placeholder="Reps"
+                        className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm focus:outline-none focus:border-cobalt"
+                        value={editForm.reps}
+                        onChange={e => setEditForm({ ...editForm, reps: Math.max(0, Number(e.target.value)) })}
+                      />
+                    </div>
                   </div>
                   <textarea
                     placeholder="Notes (Markdown supported)"
-                    className="w-full h-20 bg-white/5 border border-white/10 rounded-lg p-3 text-sm focus:outline-none focus:border-cobalt resize-none"
+                    className="w-full h-24 bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-cobalt resize-none"
                     value={editForm.notes}
                     onChange={e => setEditForm({ ...editForm, notes: e.target.value })}
                   />
                   <div className="flex gap-2">
                     <button 
                       onClick={saveEdit}
-                      className="flex-1 h-10 rounded-lg bg-cobalt/20 text-cobalt font-bold text-xs flex items-center justify-center gap-2"
+                      className="flex-1 h-11 rounded-xl bg-cobalt text-white font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 cobalt-glow"
                     >
-                      <Save size={14} /> Save
+                      <Save size={14} /> Save Changes
                     </button>
                     <button 
                       onClick={() => setEditingId(null)}
-                      className="w-10 h-10 rounded-lg bg-white/5 text-white/40 flex items-center justify-center"
+                      className="h-11 px-4 rounded-xl bg-white/5 text-white/40 flex items-center justify-center font-bold text-[10px] uppercase tracking-widest"
                     >
                       <X size={14} />
                     </button>
@@ -918,11 +924,19 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
                     <div className="flex items-center gap-3">
                       <GripVertical size={16} className="text-white/10" />
                       <div>
-                        <div className="font-bold text-sm">{ex.name}</div>
-                        <div className="text-white/30 text-[10px]">{ex.sets} sets × {ex.reps} reps</div>
+                        <div className="font-bold text-sm tracking-tight">{ex.name}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="px-2 py-0.5 rounded-md bg-cobalt/10 text-cobalt text-[8px] font-bold uppercase tracking-widest">
+                            {ex.sets} Sets
+                          </span>
+                          <span className="text-white/10">•</span>
+                          <span className="px-2 py-0.5 rounded-md bg-white/5 text-white/40 text-[8px] font-bold uppercase tracking-widest">
+                            {ex.reps} Reps
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <button 
                         onClick={() => startEditing(ex)}
                         className="p-2 text-white/20 hover:text-cobalt transition-colors"
@@ -938,7 +952,7 @@ const WorkoutPlanForm: React.FC<{ onAdd: (plan: Omit<WorkoutPlan, 'id' | 'userId
                     </div>
                   </div>
                   {ex.notes && (
-                    <div className="ml-7 text-[10px] text-white/40 italic line-clamp-2">
+                    <div className="ml-8 text-[10px] text-white/30 italic line-clamp-2 border-l border-white/5 pl-3 mt-1">
                       {ex.notes}
                     </div>
                   )}
